@@ -9,13 +9,13 @@ import (
 
 type UserService interface {
 	Create(user *request.UserRequest) *response.UserResponse
-	Update(userReq *request.UserRequest,userid int) *response.UserResponse
+	Update(userReq *request.UserRequest, userid int) *response.UserResponse
 	GetById(userid int) *response.UserResponse
 	GetAll() *[]response.UserResponse
 	Delete(userid int) bool
 }
 
-type UserServiceImpl struct{
+type UserServiceImpl struct {
 	UserRepository repository.UserRepository
 }
 
@@ -27,36 +27,36 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 
 func (us *UserServiceImpl) Create(user *request.UserRequest) *response.UserResponse {
 	userCreate := &domain.User{
-		Name: user.Name,
+		Name:     user.Name,
 		Username: user.Username,
 		Password: user.Password,
-		RoleID: uint(user.RoleId),
+		RoleID:   uint(user.RoleId),
 	}
 
 	userCreated := us.UserRepository.Create(userCreate)
 	response := &response.UserResponse{
-		ID: int(userCreated.ID),
-		Name: userCreated.Name,
+		ID:       int(userCreated.ID),
+		Name:     userCreated.Name,
 		Username: userCreated.Username,
-		RoleId: int(userCreated.RoleID),
+		RoleId:   int(userCreated.RoleID),
 	}
 	return response
 }
 
 func (us *UserServiceImpl) Update(userReq *request.UserRequest, userid int) *response.UserResponse {
 	userUpdate := &domain.User{
-		Name: userReq.Name,
+		Name:     userReq.Name,
 		Username: userReq.Username,
 		Password: userReq.Password,
-		RoleID: uint(userReq.RoleId),
+		RoleID:   uint(userReq.RoleId),
 	}
 
-	userUpdated := us.UserRepository.Update(userUpdate,userid)
+	userUpdated := us.UserRepository.Update(userUpdate, userid)
 	response := &response.UserResponse{
-		ID: int(userUpdated.ID),
-		Name: userUpdated.Name,
+		ID:       int(userUpdated.ID),
+		Name:     userUpdated.Name,
 		Username: userUpdated.Username,
-		RoleId: int(userUpdated.RoleID),
+		RoleId:   int(userUpdated.RoleID),
 	}
 	return response
 }
@@ -64,10 +64,10 @@ func (us *UserServiceImpl) Update(userReq *request.UserRequest, userid int) *res
 func (us *UserServiceImpl) GetById(userid int) *response.UserResponse {
 	user := us.UserRepository.FindById(userid)
 	response := &response.UserResponse{
-		ID: int(user.ID),
-		Name: user.Name,
+		ID:       int(user.ID),
+		Name:     user.Name,
 		Username: user.Username,
-		RoleId: int(user.RoleID),
+		RoleId:   int(user.RoleID),
 	}
 	return response
 }

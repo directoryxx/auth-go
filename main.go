@@ -1,9 +1,11 @@
-//+build !test
+//go:build !test
+// +build !test
 
 package main
 
 import (
-	"fmt"
+	"os"
+
 	"github.com/directoryxx/fiber-testing/config"
 	"github.com/directoryxx/fiber-testing/controller"
 	"github.com/directoryxx/fiber-testing/helper"
@@ -15,7 +17,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
-	"os"
 )
 
 func main() {
@@ -24,7 +25,6 @@ func main() {
 		app.Listen(":3000") //excluded
 	}
 
-
 }
 
 func SetupInit() *fiber.App {
@@ -32,10 +32,9 @@ func SetupInit() *fiber.App {
 	config.GetConfiguration(errLoadEnv)
 
 	dsn := config.GenerateDSNMySQL()
-	database,err := infrastructure.OpenDBMysql(dsn)
-	//redis := infrastructure.OpenRedis()
+	database, err := infrastructure.OpenDBMysql(dsn)
+	// redis := infrastructure.OpenRedis()
 	helper.PanicIfError(err)
-	fmt.Println(database)
 
 	app := fiber.New()
 	app.Use(logger.New(logger.Config{
@@ -54,7 +53,7 @@ func SetupInit() *fiber.App {
 	// Role
 	repoRole := repository.NewRoleRepository(database)
 	svcRole := service.NewRoleService(repoRole)
-	role := controller.NewRoleController(svcRole,root)
+	role := controller.NewRoleController(svcRole, root)
 	role.RoleRouter()
 
 	return app
