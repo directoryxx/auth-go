@@ -1,6 +1,6 @@
 mode: set
-github.com/directoryxx/auth-go/helper/error.go:3.31,4.16 1 1
-github.com/directoryxx/auth-go/helper/error.go:4.16,5.13 1 1
+github.com/directoryxx/auth-go/app/helper/error.go:3.31,4.16 1 1
+github.com/directoryxx/auth-go/app/helper/error.go:4.16,5.13 1 1
 github.com/directoryxx/auth-go/config/database.go:5.32,8.23 3 1
 github.com/directoryxx/auth-go/config/database.go:14.2,16.14 2 1
 github.com/directoryxx/auth-go/config/database.go:8.23,10.3 1 1

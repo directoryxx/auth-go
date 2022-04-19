@@ -7,10 +7,10 @@ import (
 	"os"
 
 	"github.com/directoryxx/auth-go/app/controller"
+	"github.com/directoryxx/auth-go/app/helper"
 	"github.com/directoryxx/auth-go/app/repository"
 	"github.com/directoryxx/auth-go/app/service"
 	"github.com/directoryxx/auth-go/config"
-	"github.com/directoryxx/auth-go/helper"
 	"github.com/directoryxx/auth-go/infrastructure"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -24,7 +24,6 @@ func main() {
 	if os.Getenv("TESTING") != "true" {
 		app.Listen(":3000") //excluded
 	}
-
 }
 
 func SetupInit() *fiber.App {

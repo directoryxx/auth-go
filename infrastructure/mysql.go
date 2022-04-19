@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"github.com/directoryxx/auth-go/app/domain"
-	"github.com/directoryxx/auth-go/helper"
+	"github.com/directoryxx/auth-go/app/helper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

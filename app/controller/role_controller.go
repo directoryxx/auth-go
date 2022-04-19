@@ -5,8 +5,8 @@ import (
 
 	"github.com/directoryxx/auth-go/api/rest/request"
 	"github.com/directoryxx/auth-go/api/rest/response"
+	"github.com/directoryxx/auth-go/app/helper"
 	"github.com/directoryxx/auth-go/app/service"
-	"github.com/directoryxx/auth-go/helper"
 	"github.com/gofiber/fiber/v2"
 )
 
