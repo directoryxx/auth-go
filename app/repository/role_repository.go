@@ -10,6 +10,7 @@ type RoleRepository interface {
 	Update(role *domain.Role, roleid int) *domain.Role
 	FindById(roleid int) *domain.Role
 	FindAll() []domain.Role
+	Find(column string, value string) *domain.Role
 	Delete(roleid int) bool
 }
 
@@ -36,6 +37,12 @@ func (r *RoleRepositoryImpl) Update(role *domain.Role, roleid int) *domain.Role 
 func (r *RoleRepositoryImpl) FindById(roleid int) *domain.Role {
 	role := &domain.Role{}
 	r.DB.Model(&domain.Role{}).Where("id = ?", roleid).First(role)
+	return role
+}
+
+func (r *RoleRepositoryImpl) Find(column string, value string) *domain.Role {
+	role := &domain.Role{}
+	r.DB.Model(&domain.Role{}).Where(column+" = ?", value).First(role)
 	return role
 }
 

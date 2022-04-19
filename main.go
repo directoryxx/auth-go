@@ -55,5 +55,11 @@ func SetupInit() *fiber.App {
 	role := controller.NewRoleController(svcRole, root)
 	role.RoleRouter()
 
+	// User
+	repoUser := repository.NewUserRepository(database)
+	svcUser := service.NewUserService(repoUser, repoRole)
+	user := controller.NewUserController(svcUser, root)
+	user.UserRouter()
+
 	return app
 }

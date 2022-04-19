@@ -4,10 +4,13 @@ import (
 	"github.com/directoryxx/auth-go/api/rest/request"
 	"github.com/directoryxx/auth-go/api/rest/response"
 	"github.com/directoryxx/auth-go/app/domain"
+	"github.com/directoryxx/auth-go/app/helper"
 	"github.com/directoryxx/auth-go/app/repository"
 )
 
 type UserService interface {
+	Register(register *request.RegisterUserRequest) *response.UserResponse
+	Login(login *request.LoginUserRequest) *response.UserResponse
 	Create(user *request.UserRequest) *response.UserResponse
 	Update(userReq *request.UserRequest, userid int) *response.UserResponse
 	GetById(userid int) *response.UserResponse
@@ -17,12 +20,61 @@ type UserService interface {
 
 type UserServiceImpl struct {
 	UserRepository repository.UserRepository
+	RoleRepository repository.RoleRepository
 }
 
-func NewUserService(userRepo repository.UserRepository) UserService {
+func NewUserService(userRepo repository.UserRepository, roleRepo repository.RoleRepository) UserService {
 	return &UserServiceImpl{
 		UserRepository: userRepo,
+		RoleRepository: roleRepo,
 	}
+}
+
+func (us *UserServiceImpl) Register(user *request.RegisterUserRequest) *response.UserResponse {
+	passwordGen, _ := helper.GeneratePassword(user.Password)
+	userRoleId := us.RoleRepository.Find("name", "user")
+	userCreate := &domain.User{
+		Name:     user.Name,
+		Username: user.Username,
+		Password: passwordGen,
+		RoleID:   uint(userRoleId.ID),
+	}
+
+	userCreated := us.UserRepository.Create(userCreate)
+	response := &response.UserResponse{
+		ID:       int(userCreated.ID),
+		Name:     userCreated.Name,
+		Username: userCreated.Username,
+		RoleId:   int(userCreated.RoleID),
+	}
+	return response
+}
+
+func (us *UserServiceImpl) Login(user *request.LoginUserRequest) *response.UserResponse {
+	userFind := us.UserRepository.Find("username", user.Username)
+
+	comparePassword, _ := helper.ComparePassword(user.Password, userFind.Password)
+
+	if comparePassword {
+		response := &response.UserResponse{
+			ID:       int(userFind.ID),
+			Name:     userFind.Name,
+			Username: userFind.Username,
+			RoleId:   int(userFind.RoleID),
+		}
+
+		return response
+	} else {
+		response := &response.UserResponse{
+			ID:       int(0),
+			Name:     "",
+			Username: "",
+			RoleId:   int(0),
+		}
+
+		return response
+	}
+
 }
 
 func (us *UserServiceImpl) Create(user *request.UserRequest) *response.UserResponse {

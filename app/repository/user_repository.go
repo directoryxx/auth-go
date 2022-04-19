@@ -10,6 +10,7 @@ type UserRepository interface {
 	Update(user *domain.User, userid int) *domain.User
 	FindById(userid int) *domain.User
 	FindAll() []domain.User
+	Find(column string, value string) *domain.User
 	Delete(userid int) bool
 }
 
@@ -43,6 +44,12 @@ func (ur *UserRepositoryImpl) FindAll() []domain.User {
 	var User []domain.User
 	ur.DB.Model(&domain.User{}).Find(&User)
 	return User
+}
+
+func (ur *UserRepositoryImpl) Find(column string, value string) *domain.User {
+	user := &domain.User{}
+	ur.DB.Model(&domain.User{}).Where(column+" = ?", value).First(user)
+	return user
 }
 
 func (ur *UserRepositoryImpl) Delete(userid int) bool {

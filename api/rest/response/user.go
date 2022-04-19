@@ -17,3 +17,9 @@ func ToUserResponse(user domain.User) UserResponse {
 		RoleId:   int(user.RoleID),
 	}
 }
+
+type LoginResponse struct {
+	Message string
+	Status int
+	Data interface{}
+}
