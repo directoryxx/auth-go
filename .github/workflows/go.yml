@@ -1,0 +1,65 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        # Docker Hub image
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_DATABASE: test_database-test
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: rootpass
+          MYSQL_ROOT_PASSWORD: rootpass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+    - name: print secrets
+      run: |
+          echo $ENV >> .env
+          cat .env
+      shell: bash
+      env:
+        ENV : ${{secrets.ENV}}
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      env:
+        TESTING: true
+      run: go test -v $(go list ./... | grep -v /api/ | grep -v /domain | grep -v /interfaces) -coverprofile=coverage.txt -covermode=atomic
+
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: '130efdb4-2ab4-440a-af70-c0f571b3baa5'
+        file: ./coverage.txt
+        flags: unittests
+        name: codecov-umbrella
