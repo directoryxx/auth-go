@@ -22,4 +22,5 @@ type LoginResponse struct {
 	Message string
 	Status int
 	Data interface{}
+	Token string
 }

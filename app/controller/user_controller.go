@@ -2,12 +2,15 @@ package controller
 
 import (
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/directoryxx/auth-go/api/rest/request"
 	"github.com/directoryxx/auth-go/api/rest/response"
 	"github.com/directoryxx/auth-go/app/helper"
 	"github.com/directoryxx/auth-go/app/service"
 	"github.com/gofiber/fiber/v2"
+	jwt "github.com/golang-jwt/jwt/v4"
 )
 
 type UserController interface {
@@ -73,9 +76,25 @@ func (r *UserControllerImpl) login() fiber.Handler {
 			})
 		}
 
+		// Create the Claims
+		claims := jwt.MapClaims{
+			"name": loginUser.Name,
+			"exp":  time.Now().Add(time.Hour * 72).Unix(),
+		}
+
+		// Create token
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		// Generate encoded token and send it as response.
+		t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
 		return c.JSON(&response.LoginResponse{
 			Data:    loginUser,
 			Status:  http.StatusOK,
+			Token:   t,
 			Message: "Berhasil login",
 		})
 	}
