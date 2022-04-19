@@ -1,4 +1,4 @@
-module github.com/directoryxx/fiber-testing
+module github.com/directoryxx/auth-go
 
 go 1.17
 

@@ -1,21 +1,21 @@
 package service
 
 import (
-	"github.com/directoryxx/fiber-testing/api/rest/request"
-	"github.com/directoryxx/fiber-testing/api/rest/response"
-	"github.com/directoryxx/fiber-testing/domain"
-	"github.com/directoryxx/fiber-testing/repository"
+	"github.com/directoryxx/auth-go/api/rest/request"
+	"github.com/directoryxx/auth-go/api/rest/response"
+	"github.com/directoryxx/auth-go/app/domain"
+	"github.com/directoryxx/auth-go/app/repository"
 )
 
 type RoleService interface {
 	Create(role *request.RoleRequest) *response.RoleResponse
-	Update(roleReq *request.RoleRequest,roleId int) *response.RoleResponse
+	Update(roleReq *request.RoleRequest, roleId int) *response.RoleResponse
 	GetById(roleId int) *response.RoleResponse
 	GetAll() *[]response.RoleResponse
 	Delete(roleId int) bool
 }
 
-type RoleServiceImpl struct{
+type RoleServiceImpl struct {
 	RoleRepository repository.RoleRepository
 }
 
@@ -32,20 +32,20 @@ func (svc *RoleServiceImpl) Create(role *request.RoleRequest) *response.RoleResp
 
 	roleCreated := svc.RoleRepository.Create(roleCreate)
 	response := &response.RoleResponse{
-		ID: int(roleCreated.ID),
+		ID:   int(roleCreated.ID),
 		Name: roleCreated.Name,
 	}
 	return response
 }
 
-func (svc *RoleServiceImpl) Update(roleReq *request.RoleRequest,roleId int) *response.RoleResponse {
+func (svc *RoleServiceImpl) Update(roleReq *request.RoleRequest, roleId int) *response.RoleResponse {
 	roleUpdate := &domain.Role{
 		Name: roleReq.Name,
 	}
 
 	roleUpdated := svc.RoleRepository.Update(roleUpdate, roleId)
 	response := &response.RoleResponse{
-		ID: roleId,
+		ID:   roleId,
 		Name: roleUpdated.Name,
 	}
 	return response
@@ -54,7 +54,7 @@ func (svc *RoleServiceImpl) Update(roleReq *request.RoleRequest,roleId int) *res
 func (svc *RoleServiceImpl) GetById(roleId int) *response.RoleResponse {
 	role := svc.RoleRepository.FindById(roleId)
 	response := &response.RoleResponse{
-		ID: int(role.ID),
+		ID:   int(role.ID),
 		Name: role.Name,
 	}
 	return response
@@ -73,4 +73,3 @@ func (svc *RoleServiceImpl) Delete(roleId int) bool {
 	role := svc.RoleRepository.Delete(roleId)
 	return role
 }
-

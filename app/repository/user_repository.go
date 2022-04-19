@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/directoryxx/fiber-testing/domain"
+	"github.com/directoryxx/auth-go/app/domain"
 	"gorm.io/gorm"
 )
 

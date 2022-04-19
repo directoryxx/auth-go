@@ -2,24 +2,25 @@ package service
 
 import (
 	"fmt"
-	"github.com/directoryxx/fiber-testing/api/rest/request"
-	"github.com/directoryxx/fiber-testing/config"
-	"github.com/directoryxx/fiber-testing/domain"
-	"github.com/directoryxx/fiber-testing/infrastructure"
-	"github.com/directoryxx/fiber-testing/repository"
+	"os"
+	"path"
+	"testing"
+
+	"github.com/directoryxx/auth-go/api/rest/request"
+	"github.com/directoryxx/auth-go/app/domain"
+	"github.com/directoryxx/auth-go/app/repository"
+	"github.com/directoryxx/auth-go/config"
+	"github.com/directoryxx/auth-go/infrastructure"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
-	"os"
-	"path"
-	"testing"
 )
 
 type Suite struct {
 	suite.Suite
-	RoleRepo   repository.RoleRepository
-	DB *gorm.DB
+	RoleRepo repository.RoleRepository
+	DB       *gorm.DB
 }
 
 func TestInit(t *testing.T) {
@@ -27,12 +28,12 @@ func TestInit(t *testing.T) {
 }
 
 func (s *Suite) SetupSuite() {
-	errLoadEnv := godotenv.Load(path.Join(os.Getenv("HOME")) + "/goproject/github.com/directoryxx/fiber-testing/.env")
+	errLoadEnv := godotenv.Load(path.Join(os.Getenv("HOME")) + "/goproject/github.com/directoryxx/auth-go/.env")
 	//helper.PanicIfError(errLoadEnv)
 	config.GetConfiguration(errLoadEnv)
 	dsn := config.GenerateDSNMySQL()
 	fmt.Println(dsn)
-	database,_ := infrastructure.OpenDBMysql(dsn)
+	database, _ := infrastructure.OpenDBMysql(dsn)
 	s.RoleRepo = repository.NewRoleRepository(database)
 	s.DB = database
 	s.DB.Exec("DELETE FROM roles")
@@ -40,7 +41,7 @@ func (s *Suite) SetupSuite() {
 
 func (s *Suite) TestNewRoleService() {
 	roleSvc := NewRoleService(s.RoleRepo)
-	assert.NotNil(s.T(),roleSvc)
+	assert.NotNil(s.T(), roleSvc)
 }
 
 func (s *Suite) TestRoleService_Create() {
@@ -49,7 +50,7 @@ func (s *Suite) TestRoleService_Create() {
 	}
 	roleSvc := NewRoleService(s.RoleRepo)
 	create := roleSvc.Create(requestRole)
-	assert.NotNil(s.T(),create.ID)
+	assert.NotNil(s.T(), create.ID)
 }
 
 func (s *Suite) TestRoleService_Delete() {
@@ -66,7 +67,7 @@ func (s *Suite) TestRoleService_GetAll() {
 	}
 	roleSvc := NewRoleService(s.RoleRepo)
 	create := roleSvc.Create(requestRole)
-	assert.NotNil(s.T(),create.ID)
+	assert.NotNil(s.T(), create.ID)
 	getAll := roleSvc.GetAll()
 	assert.NotNil(s.T(), getAll)
 }
@@ -76,7 +77,7 @@ func (s *Suite) TestRoleService_GetById() {
 	s.DB.Model(&domain.Role{}).Last(roleLast)
 	roleSvc := NewRoleService(s.RoleRepo)
 	role := roleSvc.GetById(int(roleLast.ID))
-	assert.Equal(s.T(), int(role.ID),int(roleLast.ID))
+	assert.Equal(s.T(), int(role.ID), int(roleLast.ID))
 }
 
 func (s *Suite) TestRoleService_Update() {
@@ -86,8 +87,8 @@ func (s *Suite) TestRoleService_Update() {
 	}
 	s.DB.Model(&domain.Role{}).Last(roleLast)
 	roleSvc := NewRoleService(s.RoleRepo)
-	role := roleSvc.Update(requestRole,int(roleLast.ID))
-	assert.Equal(s.T(), role.Name,requestRole.Name)
+	role := roleSvc.Update(requestRole, int(roleLast.ID))
+	assert.Equal(s.T(), role.Name, requestRole.Name)
 }
 
 func (s *Suite) TearDownSuite() {

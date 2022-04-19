@@ -4,30 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http/httptest"
+	"os"
+	"path"
+	"strconv"
+	"testing"
+
+	"github.com/directoryxx/auth-go/api/rest/request"
+	"github.com/directoryxx/auth-go/app/repository"
+	"github.com/directoryxx/auth-go/app/service"
+	"github.com/directoryxx/auth-go/config"
+	"github.com/directoryxx/auth-go/infrastructure"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
-	"io"
-	"net/http/httptest"
-	"os"
-	"path"
-	"github.com/directoryxx/fiber-testing/api/rest/request"
-	"github.com/directoryxx/fiber-testing/config"
-	"github.com/directoryxx/fiber-testing/infrastructure"
-	"github.com/directoryxx/fiber-testing/repository"
-	"github.com/directoryxx/fiber-testing/service"
-	"strconv"
-	"testing"
 )
 
 type Suite struct {
 	suite.Suite
-	RoleRepo   repository.RoleRepository
-	RoleSvc   service.RoleService
-	DB *gorm.DB
-	app *fiber.App
+	RoleRepo repository.RoleRepository
+	RoleSvc  service.RoleService
+	DB       *gorm.DB
+	app      *fiber.App
 }
 
 func TestInit(t *testing.T) {
@@ -35,17 +36,17 @@ func TestInit(t *testing.T) {
 }
 
 func (s *Suite) SetupSuite() {
-	errLoadEnv := godotenv.Load(path.Join(os.Getenv("HOME")) + "/goproject/github.com/directoryxx/fiber-testing/.env")
+	errLoadEnv := godotenv.Load(path.Join(os.Getenv("HOME")) + "/goproject/github.com/directoryxx/auth-go/.env")
 	//helper.PanicIfError(errLoadEnv)
 	config.GetConfiguration(errLoadEnv)
 	dsn := config.GenerateDSNMySQL()
-	database,_ := infrastructure.OpenDBMysql(dsn)
+	database, _ := infrastructure.OpenDBMysql(dsn)
 	s.RoleRepo = repository.NewRoleRepository(database)
 	s.RoleSvc = service.NewRoleService(s.RoleRepo)
 	s.DB = database
 	s.app = fiber.New()
 	s.app.Group("/api")
-	role := NewRoleController(s.RoleSvc,s.app)
+	role := NewRoleController(s.RoleSvc, s.app)
 	role.RoleRouter()
 }
 
@@ -118,12 +119,11 @@ func (s *Suite) TestRoleController_updateRole() {
 	role := s.RoleSvc.Create(req)
 	roleId := strconv.Itoa(role.ID)
 
-
 	values := map[string]string{"name": "test"}
 	json_data, err := json.Marshal(values)
 	assert.NoError(s.T(), err)
 	reqGET := httptest.NewRequest("PUT", "http://localhost:3000/role/"+roleId, bytes.NewBuffer(json_data))
-	reqGET.Header.Set("Content-type","application/json")
+	reqGET.Header.Set("Content-type", "application/json")
 	resp, _ := s.app.Test(reqGET)
 	assert.Equal(s.T(), "200 OK", resp.Status)
 	defer resp.Body.Close()

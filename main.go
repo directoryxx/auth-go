@@ -6,12 +6,12 @@ package main
 import (
 	"os"
 
-	"github.com/directoryxx/fiber-testing/config"
-	"github.com/directoryxx/fiber-testing/controller"
-	"github.com/directoryxx/fiber-testing/helper"
-	"github.com/directoryxx/fiber-testing/infrastructure"
-	"github.com/directoryxx/fiber-testing/repository"
-	"github.com/directoryxx/fiber-testing/service"
+	"github.com/directoryxx/auth-go/app/controller"
+	"github.com/directoryxx/auth-go/app/repository"
+	"github.com/directoryxx/auth-go/app/service"
+	"github.com/directoryxx/auth-go/config"
+	"github.com/directoryxx/auth-go/helper"
+	"github.com/directoryxx/auth-go/infrastructure"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"

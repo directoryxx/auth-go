@@ -1,12 +1,13 @@
 package controller
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"net/http"
-	"github.com/directoryxx/fiber-testing/api/rest/request"
-	"github.com/directoryxx/fiber-testing/api/rest/response"
-	"github.com/directoryxx/fiber-testing/helper"
-	"github.com/directoryxx/fiber-testing/service"
+
+	"github.com/directoryxx/auth-go/api/rest/request"
+	"github.com/directoryxx/auth-go/api/rest/response"
+	"github.com/directoryxx/auth-go/app/service"
+	"github.com/directoryxx/auth-go/helper"
+	"github.com/gofiber/fiber/v2"
 )
 
 type RoleController interface {
@@ -18,20 +19,20 @@ type RoleController interface {
 	RoleRouter()
 }
 
-type RoleControllerImpl struct{
-	Ctx *fiber.Ctx
+type RoleControllerImpl struct {
+	Ctx     *fiber.Ctx
 	Service service.RoleService
-	Router fiber.Router
+	Router  fiber.Router
 }
 
 func NewRoleController(svc service.RoleService, app fiber.Router) RoleController {
 	return &RoleControllerImpl{
 		Service: svc,
-		Router: app,
+		Router:  app,
 	}
 }
 
-func (r *RoleControllerImpl) RoleRouter()  {
+func (r *RoleControllerImpl) RoleRouter() {
 	group := r.Router.Group("role")
 	group.Get("/", r.findAllRole())
 	group.Get("/:id", r.findByIdRole())
@@ -49,7 +50,7 @@ func (r *RoleControllerImpl) createRole() fiber.Handler {
 		create := r.Service.Create(role)
 
 		return c.JSON(&response.DefaultSuccess{
-			Data: create,
+			Data:   create,
 			Status: http.StatusOK,
 		})
 	}
@@ -62,10 +63,10 @@ func (r *RoleControllerImpl) updateRole() fiber.Handler {
 		var roleReq *request.RoleRequest
 		errRequest := c.BodyParser(&roleReq)
 		helper.PanicIfError(errRequest)
-		role := r.Service.Update(roleReq,id)
+		role := r.Service.Update(roleReq, id)
 
 		return c.JSON(&response.DefaultSuccess{
-			Data: role,
+			Data:   role,
 			Status: http.StatusOK,
 		})
 
@@ -79,7 +80,7 @@ func (r *RoleControllerImpl) deleteRole() fiber.Handler {
 		r.Service.Delete(id)
 
 		return c.JSON(&response.DefaultSuccess{
-			Data: "true",
+			Data:   "true",
 			Status: http.StatusOK,
 		})
 	}
@@ -91,16 +92,16 @@ func (r *RoleControllerImpl) findByIdRole() fiber.Handler {
 		helper.PanicIfError(err)
 		role := r.Service.GetById(id)
 
-		if (role.ID == 0){
+		if role.ID == 0 {
 			c.Status(http.StatusNotFound)
 			return c.JSON(&response.DefaultSuccess{
-				Data: nil,
+				Data:   nil,
 				Status: http.StatusNotFound,
 			})
 		}
 
 		return c.JSON(&response.DefaultSuccess{
-			Data: role,
+			Data:   role,
 			Status: http.StatusOK,
 		})
 	}
@@ -110,7 +111,7 @@ func (r *RoleControllerImpl) findAllRole() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		roleAll := r.Service.GetAll()
 		return c.JSON(&response.DefaultSuccess{
-			Data: roleAll,
+			Data:   roleAll,
 			Status: http.StatusOK,
 		})
 	}

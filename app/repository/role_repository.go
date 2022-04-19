@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"github.com/directoryxx/auth-go/app/domain"
 	"gorm.io/gorm"
-	"github.com/directoryxx/fiber-testing/domain"
 )
 
 type RoleRepository interface {
@@ -13,7 +13,7 @@ type RoleRepository interface {
 	Delete(roleid int) bool
 }
 
-type RoleRepositoryImpl struct{
+type RoleRepositoryImpl struct {
 	DB *gorm.DB
 }
 

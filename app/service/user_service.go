@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/directoryxx/fiber-testing/api/rest/request"
-	"github.com/directoryxx/fiber-testing/api/rest/response"
-	"github.com/directoryxx/fiber-testing/domain"
-	"github.com/directoryxx/fiber-testing/repository"
+	"github.com/directoryxx/auth-go/api/rest/request"
+	"github.com/directoryxx/auth-go/api/rest/response"
+	"github.com/directoryxx/auth-go/app/domain"
+	"github.com/directoryxx/auth-go/app/repository"
 )
 
 type UserService interface {
