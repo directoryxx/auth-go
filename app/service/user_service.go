@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strconv"
+
 	"github.com/directoryxx/auth-go/api/rest/request"
 	"github.com/directoryxx/auth-go/api/rest/response"
 	"github.com/directoryxx/auth-go/app/domain"
@@ -16,6 +18,8 @@ type UserService interface {
 	GetById(userid int) *response.UserResponse
 	GetAll() *[]response.UserResponse
 	Delete(userid int) bool
+	RememberUuid(userId int, uuid string)
+	Logout(uuid interface{})
 }
 
 type UserServiceImpl struct {
@@ -77,6 +81,10 @@ func (us *UserServiceImpl) Login(user *request.LoginUserRequest) *response.UserR
 
 }
 
+func (us *UserServiceImpl) RememberUuid(userId int, uuid string) {
+	us.UserRepository.Set(uuid, strconv.Itoa(userId))
+}
+
 func (us *UserServiceImpl) Create(user *request.UserRequest) *response.UserResponse {
 	userCreate := &domain.User{
 		Name:     user.Name,
@@ -136,4 +144,9 @@ func (us *UserServiceImpl) GetAll() *[]response.UserResponse {
 func (us *UserServiceImpl) Delete(userid int) bool {
 	user := us.UserRepository.Delete(userid)
 	return user
+}
+
+func (us *UserServiceImpl) Logout(uuid interface{}) {
+	uuidStr := uuid.(string)
+	us.UserRepository.DeleteToken(uuidStr)
 }

@@ -1,7 +1,11 @@
 package repository
 
 import (
+	"context"
+	"time"
+
 	"github.com/directoryxx/auth-go/app/domain"
+	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 )
 
@@ -12,15 +16,21 @@ type UserRepository interface {
 	FindAll() []domain.User
 	Find(column string, value string) *domain.User
 	Delete(userid int) bool
+	Set(key string, value string)
+	DeleteToken(key string)
 }
 
 type UserRepositoryImpl struct {
-	DB *gorm.DB
+	DB      *gorm.DB
+	Client  *redis.Client
+	Context context.Context
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
+func NewUserRepository(db *gorm.DB, redis *redis.Client, ctx context.Context) UserRepository {
 	return &UserRepositoryImpl{
-		DB: db,
+		DB:      db,
+		Client:  redis,
+		Context: ctx,
 	}
 }
 
@@ -55,4 +65,12 @@ func (ur *UserRepositoryImpl) Find(column string, value string) *domain.User {
 func (ur *UserRepositoryImpl) Delete(userid int) bool {
 	ur.DB.Delete(&domain.Role{}, userid)
 	return true
+}
+
+func (ur *UserRepositoryImpl) Set(key string, value string) {
+	ur.Client.Set(ur.Context, key, value, time.Hour*7).Err()
+}
+
+func (ur *UserRepositoryImpl) DeleteToken(key string) {
+	ur.Client.Del(ur.Context, key).Err()
 }

@@ -8,13 +8,16 @@ import (
 	"github.com/directoryxx/auth-go/api/rest/request"
 	"github.com/directoryxx/auth-go/api/rest/response"
 	"github.com/directoryxx/auth-go/app/helper"
+	"github.com/directoryxx/auth-go/app/middleware"
 	"github.com/directoryxx/auth-go/app/service"
 	"github.com/gofiber/fiber/v2"
+	jwtware "github.com/gofiber/jwt/v3"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 type UserController interface {
-	createRole() fiber.Handler
+	createUser() fiber.Handler
 	updateRole() fiber.Handler
 	deleteRole() fiber.Handler
 	findByIdRole() fiber.Handler
@@ -38,12 +41,17 @@ func NewUserController(svc service.UserService, app fiber.Router) UserController
 func (r *UserControllerImpl) UserRouter() {
 	r.Router.Post("/register", r.register())
 	r.Router.Post("/login", r.login())
-	// group := r.Router.Group("user")
+	// JWT Middleware
+	r.Router.Use(jwtware.New(jwtware.Config{
+		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+	}))
+	r.Router.Post("/logout", middleware.JWTProtected(r.Service), r.logout())
+	group := r.Router.Group("user")
 	// group.Get("/", r.findAllRole())
 	// group.Get("/:id", r.findByIdRole())
 	// group.Put("/:id", r.updateRole())
 	// group.Delete("/:id", r.deleteRole())
-	// group.Post("/", r.createRole())
+	group.Post("/", r.createUser())
 }
 
 func (r *UserControllerImpl) register() fiber.Handler {
@@ -65,6 +73,7 @@ func (r *UserControllerImpl) login() fiber.Handler {
 		var loginReq *request.LoginUserRequest
 		errRequest := c.BodyParser(&loginReq)
 		helper.PanicIfError(errRequest)
+		id := uuid.New()
 
 		loginUser := r.Service.Login(loginReq)
 
@@ -79,7 +88,8 @@ func (r *UserControllerImpl) login() fiber.Handler {
 		// Create the Claims
 		claims := jwt.MapClaims{
 			"name": loginUser.Name,
-			"exp":  time.Now().Add(time.Hour * 72).Unix(),
+			"uuid": id.String(),
+			"exp":  time.Now().Add(time.Hour * 7).Unix(),
 		}
 
 		// Create token
@@ -91,6 +101,8 @@ func (r *UserControllerImpl) login() fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
+		r.Service.RememberUuid(loginUser.ID, id.String())
+
 		return c.JSON(&response.LoginResponse{
 			Data:    loginUser,
 			Status:  http.StatusOK,
@@ -100,19 +112,27 @@ func (r *UserControllerImpl) login() fiber.Handler {
 	}
 }
 
-func (r *UserControllerImpl) createRole() fiber.Handler {
+func (r *UserControllerImpl) logout() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// var role *request.RoleRequest
-		// errRequest := c.BodyParser(&role)
-		// helper.PanicIfError(errRequest)
+		user := c.Locals("user").(*jwt.Token)
+		claims := user.Claims.(jwt.MapClaims)
+		r.Service.Logout(claims["uuid"])
+		return c.JSON("success")
+	}
+}
 
-		// create := r.Service.Create(role)
+func (r *UserControllerImpl) createUser() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var user *request.UserRequest
+		errRequest := c.BodyParser(&user)
+		helper.PanicIfError(errRequest)
 
-		// return c.JSON(&response.DefaultSuccess{
-		// 	Data:   create,
-		// 	Status: http.StatusOK,
-		// })
-		return c.JSON("ok")
+		create := r.Service.Create(user)
+
+		return c.JSON(&response.DefaultSuccess{
+			Data:   create,
+			Status: http.StatusOK,
+		})
 	}
 }
 

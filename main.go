@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	"github.com/directoryxx/auth-go/app/controller"
@@ -19,6 +20,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var ctx = context.Background()
+
 func main() {
 	app := SetupInit()
 	if os.Getenv("TESTING") != "true" {
@@ -32,7 +35,7 @@ func SetupInit() *fiber.App {
 
 	dsn := config.GenerateDSNMySQL()
 	database, err := infrastructure.OpenDBMysql(dsn)
-	// redis := infrastructure.OpenRedis()
+	redis := infrastructure.OpenRedis(ctx)
 	helper.PanicIfError(err)
 
 	app := fiber.New()
@@ -56,7 +59,7 @@ func SetupInit() *fiber.App {
 	role.RoleRouter()
 
 	// User
-	repoUser := repository.NewUserRepository(database)
+	repoUser := repository.NewUserRepository(database, redis, ctx)
 	svcUser := service.NewUserService(repoUser, repoRole)
 	user := controller.NewUserController(svcUser, root)
 	user.UserRouter()
