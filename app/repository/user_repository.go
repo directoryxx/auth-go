@@ -18,6 +18,7 @@ type UserRepository interface {
 	Delete(userid int) bool
 	Set(key string, value string)
 	DeleteToken(key string)
+	Get(key string) (res string, err error)
 }
 
 type UserRepositoryImpl struct {
@@ -69,6 +70,10 @@ func (ur *UserRepositoryImpl) Delete(userid int) bool {
 
 func (ur *UserRepositoryImpl) Set(key string, value string) {
 	ur.Client.Set(ur.Context, key, value, time.Hour*7).Err()
+}
+
+func (ur *UserRepositoryImpl) Get(key string) (res string,err error) {
+	return ur.Client.Get(ur.Context, key).Result()
 }
 
 func (ur *UserRepositoryImpl) DeleteToken(key string) {

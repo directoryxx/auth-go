@@ -20,6 +20,7 @@ type UserService interface {
 	Delete(userid int) bool
 	RememberUuid(userId int, uuid string)
 	Logout(uuid interface{})
+	CheckLogin(uuid interface{}) bool
 }
 
 type UserServiceImpl struct {
@@ -149,4 +150,14 @@ func (us *UserServiceImpl) Delete(userid int) bool {
 func (us *UserServiceImpl) Logout(uuid interface{}) {
 	uuidStr := uuid.(string)
 	us.UserRepository.DeleteToken(uuidStr)
+}
+
+func (us *UserServiceImpl) CheckLogin(uuid interface{}) bool {
+	uuidStr := uuid.(string)
+	res, _ := us.UserRepository.Get(uuidStr)
+	if res == "" {
+		return true
+	} else {
+		return false
+	}
 }
