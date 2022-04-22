@@ -1,6 +1,9 @@
 package middleware
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/directoryxx/auth-go/app/service"
 	"github.com/gofiber/fiber/v2"
 
@@ -13,7 +16,8 @@ func JWTProtected(service service.UserService) fiber.Handler {
 		user := c.Locals("user").(*jwt.Token)
 		claims := user.Claims.(jwt.MapClaims)
 		check := service.CheckLogin(claims["uuid"])
-		if !check {
+		fmt.Println("check : " + strconv.FormatBool(check))
+		if check == false {
 			c.Status(401)
 			return c.JSON(fiber.Map{"error": "Unauthorized access"})
 		}

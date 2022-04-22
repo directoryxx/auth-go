@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/directoryxx/auth-go/api/rest/request"
@@ -150,12 +151,14 @@ func (us *UserServiceImpl) Delete(userid int) bool {
 func (us *UserServiceImpl) Logout(uuid interface{}) {
 	uuidStr := uuid.(string)
 	us.UserRepository.DeleteToken(uuidStr)
+
 }
 
 func (us *UserServiceImpl) CheckLogin(uuid interface{}) bool {
 	uuidStr := uuid.(string)
 	res, _ := us.UserRepository.Get(uuidStr)
-	if res == "" {
+	fmt.Println(res)
+	if res != "" {
 		return true
 	} else {
 		return false

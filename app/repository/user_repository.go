@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/directoryxx/auth-go/app/domain"
@@ -72,10 +73,11 @@ func (ur *UserRepositoryImpl) Set(key string, value string) {
 	ur.Client.Set(ur.Context, key, value, time.Hour*7).Err()
 }
 
-func (ur *UserRepositoryImpl) Get(key string) (res string,err error) {
+func (ur *UserRepositoryImpl) Get(key string) (res string, err error) {
 	return ur.Client.Get(ur.Context, key).Result()
 }
 
 func (ur *UserRepositoryImpl) DeleteToken(key string) {
-	ur.Client.Del(ur.Context, key).Err()
+	fmt.Println(key)
+	ur.Client.Del(ur.Context, key).Result()
 }

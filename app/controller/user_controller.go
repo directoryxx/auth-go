@@ -21,7 +21,7 @@ type UserController interface {
 	updateRole() fiber.Handler
 	deleteRole() fiber.Handler
 	findByIdRole() fiber.Handler
-	findAllRole() fiber.Handler
+	findAllUser() fiber.Handler
 	UserRouter()
 }
 
@@ -47,7 +47,7 @@ func (r *UserControllerImpl) UserRouter() {
 	}))
 	r.Router.Post("/logout", middleware.JWTProtected(r.Service), r.logout())
 	group := r.Router.Group("user")
-	// group.Get("/", r.findAllRole())
+	group.Get("/", middleware.JWTProtected(r.Service), r.findAllUser())
 	// group.Get("/:id", r.findByIdRole())
 	// group.Put("/:id", r.updateRole())
 	// group.Delete("/:id", r.deleteRole())
@@ -184,7 +184,7 @@ func (r *UserControllerImpl) findByIdRole() fiber.Handler {
 	}
 }
 
-func (r *UserControllerImpl) findAllRole() fiber.Handler {
+func (r *UserControllerImpl) findAllUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// var role *request.RoleRequest
 		// errRequest := c.BodyParser(&role)
